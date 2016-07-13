@@ -1,11 +1,11 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"os"
 
 	"github.com/codegangsta/cli"
+	"github.com/limianwang/yo/configurator"
 )
 
 type Config struct{}
@@ -16,7 +16,8 @@ func main() {
 
 	app.Version = "0.0.1"
 	app.Action = func(c *cli.Context) error {
-		loadConfig(c.String("config"))
+		config, _ := configurator.LoadConfig(c.String("config"))
+		fmt.Println(config)
 		return nil
 	}
 
@@ -24,22 +25,9 @@ func main() {
 		cli.StringFlag{
 			Name:  "config, c",
 			Usage: "Load Configuration from `FILE`",
-			Value: "config/default.json",
+			Value: "configurator/default.json",
 		},
 	}
 
 	app.Run(os.Args)
-}
-
-func loadConfig(s string) (*Config, error) {
-	content, err := ioutil.ReadFile(s)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := &Config{}
-	if err := json.Unmarshal(content, conf); err != nil {
-		return nil, err
-	}
-	return conf, nil
 }
