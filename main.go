@@ -3,9 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/codegangsta/cli"
 	"github.com/limianwang/yo/configurator"
 	"github.com/limianwang/yo/service"
+
+	"github.com/urfave/cli"
 )
 
 func main() {

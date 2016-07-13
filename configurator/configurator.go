@@ -6,6 +6,7 @@ import (
 )
 
 type Config struct {
+	AppID  string `json:"app_id"`
 	Secret string `json:"secret"`
 }
 
