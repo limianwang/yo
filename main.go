@@ -8,8 +8,6 @@ import (
 	"github.com/limianwang/yo/configurator"
 )
 
-type Config struct{}
-
 func main() {
 	app := cli.NewApp()
 	app.Name = "yo"
