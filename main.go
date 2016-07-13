@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/codegangsta/cli"
 	"github.com/limianwang/yo/configurator"
+	"github.com/limianwang/yo/service"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	app.Version = "0.0.1"
 	app.Action = func(c *cli.Context) error {
 		config, _ := configurator.LoadConfig(c.String("config"))
-		fmt.Println(config)
+		service.InitAndStart(config)
 		return nil
 	}
 
