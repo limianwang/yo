@@ -25,6 +25,7 @@ type accessTokenInfo struct {
 	ExpiresIn int64  `json:"expires_in"`
 }
 
+// NewAccessWorker ...
 func NewAccessWorker(appID, secret string) *Access {
 	a := &Access{AppID: appID, AppSecret: secret, httpClient: http.DefaultClient}
 	a.getToken()

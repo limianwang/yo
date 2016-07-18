@@ -8,6 +8,8 @@ import (
 type Config struct {
 	AppID  string `json:"app_id"`
 	Secret string `json:"secret"`
+
+	Port string `json:"port"`
 }
 
 func LoadConfig(path string) (*Config, error) {
