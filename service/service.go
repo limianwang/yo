@@ -13,15 +13,20 @@ import (
 func InitAndStart(conf *configurator.Config) {
 	fmt.Println("starting...")
 
-	a := accessor.NewAccessWorker(conf.AppID, conf.Secret)
+	go accessor.NewAccessWorker(conf.Accessor.AppID, conf.Accessor.Secret, conf.Accessor.Frequency)
 
 	startServer(conf)
-
-	fmt.Println(a)
 }
 
 func startServer(conf *configurator.Config) {
-	fmt.Println("Hello...")
+	group := iris.Party("/api")
+	{
+		group.Get("/validate", func(c *iris.Context) {
+			c.JSON(iris.StatusOK, iris.Map{
+				"status": "ok",
+			})
+		})
+	}
 
 	iris.Listen(conf.Port)
 }

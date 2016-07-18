@@ -15,7 +15,7 @@ func main() {
 
 	app.Version = "0.0.1"
 	app.Action = func(c *cli.Context) error {
-		config, _ := configurator.LoadConfig(c.String("config"))
+		config, _ := configurator.Load(c.String("config"))
 		service.InitAndStart(config)
 		return nil
 	}

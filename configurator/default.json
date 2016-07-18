@@ -1,4 +1,8 @@
 {
-	"secret":"abcddee2",
-	"port": "10001"
+	"port": "10001",
+
+	"accessor": {
+		"secret":"abcddee2",
+		"minutes_to_refresh": 1
+	}
 }
