@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -15,6 +16,12 @@ type Access struct {
 	AppSecret  string
 	httpClient *http.Client
 	reset      chan time.Duration
+
+	LastToken struct {
+		sync.Mutex
+		tokenInfo accessTokenInfo
+		timestamp int64
+	}
 }
 
 // Error is a generic struct that implements error interface
@@ -29,7 +36,7 @@ type accessTokenInfo struct {
 }
 
 // NewAccessWorker ...
-func NewAccessWorker(appID, secret string, duration int) {
+func NewAccessWorker(appID, secret string, duration int) *Access {
 	log.Println("Starting Accessor Worker...")
 	a := &Access{
 		AppID:      appID,
@@ -38,7 +45,8 @@ func NewAccessWorker(appID, secret string, duration int) {
 		reset:      make(chan time.Duration),
 	}
 
-	a.start(time.Duration(duration) * time.Minute)
+	go a.start(time.Duration(duration) * time.Second)
+	return a
 }
 
 func (a *Access) start(duration time.Duration) {
@@ -61,22 +69,55 @@ NEW_TICKER:
 }
 
 func (a *Access) getToken() (string, error) {
-	_url := fmt.Sprintf(accessTokenAPI, a.AppID, a.AppSecret)
-	resp, err := a.httpClient.Get(_url)
+	a.LastToken.Lock()
+	defer a.LastToken.Unlock()
 
-	if err != nil {
-		fmt.Println(err)
-	}
+	/*
+		now := time.Now().Unix()
+
+		if n := a.LastToken.timestamp; n <= now && now < n+2 {
+			fmt.Println("using cache")
+
+			return a.LastToken.tokenInfo.Token, nil
+		}
+	*/
+
+	ch := make(chan *httpResponse)
+
+	go fetchToken(a.AppID, a.AppSecret, ch)
 
 	var result struct {
 		wError
 		accessTokenInfo
 	}
 
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
+	for {
+		select {
+		case r := <-ch:
+			if r.err != nil {
+				fmt.Println(r.err)
+			} else {
+				if err := json.NewDecoder(r.response.Body).Decode(&result); err != nil {
+					return "", nil
+				}
+				return result.Token, nil
+			}
+		case <-time.After(2 * time.Second):
+			fmt.Println("timeout?")
+		}
 	}
 
-	return result.Token, nil
+}
 
+type httpResponse struct {
+	err      error
+	response *http.Response
+}
+
+func fetchToken(appID, secret string, c chan *httpResponse) {
+	fmt.Println("In go rountine..")
+	_url := fmt.Sprintf(accessTokenAPI, appID, secret)
+	resp, err := http.DefaultClient.Get(_url)
+
+	c <- &httpResponse{err, resp}
 }

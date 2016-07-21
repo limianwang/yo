@@ -13,12 +13,12 @@ import (
 func InitAndStart(conf *configurator.Config) {
 	fmt.Println("starting...")
 
-	go accessor.NewAccessWorker(conf.Accessor.AppID, conf.Accessor.Secret, conf.Accessor.Frequency)
+	a := accessor.NewAccessWorker(conf.Accessor.AppID, conf.Accessor.Secret, conf.Accessor.Frequency)
 
-	startServer(conf)
+	startServer(conf, a)
 }
 
-func startServer(conf *configurator.Config) {
+func startServer(conf *configurator.Config, a *accessor.Access) {
 	group := iris.Party("/api")
 	{
 		group.Get("/validate", func(c *iris.Context) {

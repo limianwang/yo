@@ -3,6 +3,6 @@
 
 	"accessor": {
 		"secret":"abcddee2",
-		"minutes_to_refresh": 1
+		"minutes_to_refresh": 20
 	}
 }
