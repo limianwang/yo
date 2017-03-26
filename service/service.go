@@ -4,21 +4,19 @@ import (
 	"fmt"
 
 	"github.com/kataras/iris"
-
-	"github.com/limianwang/yo/configurator"
-	"github.com/limianwang/yo/service/accessor"
+	"github.com/limianwang/yo/config"
 )
 
 // InitAndStart initializes and starts the server
-func InitAndStart(conf *configurator.Config) {
+func InitAndStart(conf *config.Config) {
 	fmt.Println("starting...")
 
-	a := accessor.NewAccessWorker(conf.Accessor.AppID, conf.Accessor.Secret, conf.Accessor.Frequency)
+	// a := accessor.NewAccessWorker(conf.Accessor.AppID, conf.Accessor.Secret, conf.Accessor.Frequency)
 
-	startServer(conf, a)
+	startServer(conf)
 }
 
-func startServer(conf *configurator.Config, a *accessor.Access) {
+func startServer(conf *config.Config) {
 	group := iris.Party("/api")
 	{
 		group.Get("/validate", func(c *iris.Context) {
@@ -28,5 +26,5 @@ func startServer(conf *configurator.Config, a *accessor.Access) {
 		})
 	}
 
-	iris.Listen(conf.Port)
+	iris.Listen(fmt.Sprintf(":%s", conf.Port))
 }

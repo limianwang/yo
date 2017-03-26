@@ -1,32 +1,35 @@
 package main
 
 import (
-	"os"
+	"flag"
+	"fmt"
+	"log"
 
-	"github.com/limianwang/yo/configurator"
+	"github.com/limianwang/yo/config"
 	"github.com/limianwang/yo/service"
+	"github.com/limianwang/yo/worker"
+)
 
-	"github.com/urfave/cli"
+// WebServer that listens for events
+// Worker to fetch the accessToken every so often
+
+var (
+	configFile = flag.String("config", "config/default.json", "-config /path/to/config.json")
 )
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "yo"
 
-	app.Version = "0.0.1"
-	app.Action = func(c *cli.Context) error {
-		config, _ := configurator.Load(c.String("config"))
-		service.InitAndStart(config)
-		return nil
+	flag.Parse()
+	fmt.Println(*configFile)
+
+	cfg, err := config.Load(*configFile)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "config, c",
-			Usage: "Load Configuration from `FILE`",
-			Value: "configurator/default.json",
-		},
-	}
+	go worker.Start("localhost:6379", "")
 
-	app.Run(os.Args)
+	fmt.Println("something started...")
+
+	service.InitAndStart(cfg)
 }

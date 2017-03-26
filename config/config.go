@@ -1,10 +1,11 @@
-package configurator
+package config
 
 import (
 	"encoding/json"
 	"io/ioutil"
 )
 
+// Config object that hosts the json formatted variables
 type Config struct {
 	Accessor struct {
 		AppID     string `json:"app_id"`
@@ -15,6 +16,7 @@ type Config struct {
 	Port string `json:"port"`
 }
 
+// Load initializes the config object based on a file path
 func Load(path string) (*Config, error) {
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
