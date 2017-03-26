@@ -13,7 +13,11 @@ type Config struct {
 		Frequency int    `json:"minutes_to_refresh"`
 	} `json:"accessor"`
 
-	Port string `json:"port"`
+	Redis struct {
+		Host     string `json:"host"`
+		Password string `json:"password"`
+		DB       int    `json:"db"`
+	} `json:"redis"`
 }
 
 // Load initializes the config object based on a file path

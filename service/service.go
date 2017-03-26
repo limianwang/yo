@@ -2,8 +2,12 @@ package service
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 
-	"github.com/kataras/iris"
+	"github.com/go-ozzo/ozzo-routing"
+	"github.com/go-ozzo/ozzo-routing/access"
+	"github.com/go-ozzo/ozzo-routing/content"
 	"github.com/limianwang/yo/config"
 )
 
@@ -17,14 +21,22 @@ func InitAndStart(conf *config.Config) {
 }
 
 func startServer(conf *config.Config) {
-	group := iris.Party("/api")
-	{
-		group.Get("/validate", func(c *iris.Context) {
-			c.JSON(iris.StatusOK, iris.Map{
-				"status": "ok",
-			})
-		})
-	}
+	router := routing.New()
 
-	iris.Listen(fmt.Sprintf(":%s", conf.Port))
+	router.Use(
+		access.Logger(log.Printf),
+	)
+
+	api := router.Group("/api")
+	api.Use(
+		content.TypeNegotiator(content.JSON),
+	)
+	api.Get("/validate", func(c *routing.Context) error {
+		return c.Write(map[string]string{
+			"status": "ok",
+		})
+	})
+
+	http.Handle("/", router)
+	http.ListenAndServe(":10001", nil)
 }

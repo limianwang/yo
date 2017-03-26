@@ -1,0 +1,10 @@
+version: '2'
+services:
+  yo:
+    build: .
+    ports:
+      - 3000:10001
+    depends_on:
+      - redis
+  redis:
+    image: redis

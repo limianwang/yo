@@ -1,8 +1,11 @@
 {
-	"port": "10001",
-
 	"accessor": {
 		"secret":"abcddee2",
 		"minutes_to_refresh": 20
+	},
+	"redis": {
+		"host": "redis",
+		"password": "",
+		"db": 0
 	}
 }

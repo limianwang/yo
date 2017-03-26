@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	go worker.Start("localhost:6379", "")
+	go worker.Start(cfg.Redis.Host, cfg.Redis.Password, cfg.Redis.DB)
 
 	fmt.Println("something started...")
 
