@@ -4,7 +4,7 @@
 		"minutes_to_refresh": 20
 	},
 	"redis": {
-		"host": "redis",
+		"host": "localhost:6379",
 		"password": "",
 		"db": 0
 	}

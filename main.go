@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
+	"os"
+	"os/signal"
 
 	"github.com/limianwang/yo/config"
 	"github.com/limianwang/yo/service"
@@ -18,18 +19,40 @@ var (
 )
 
 func main() {
-
 	flag.Parse()
-	fmt.Println(*configFile)
 
 	cfg, err := config.Load(*configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	go worker.Start(cfg.Redis.Host, cfg.Redis.Password, cfg.Redis.DB)
+	w := worker.Init(
+		cfg.Redis.Host,
+		cfg.Redis.Password,
+		cfg.Redis.DB,
+		cfg.Accessor.AppID,
+		cfg.Accessor.Secret,
+		cfg.Accessor.Frequency,
+	)
 
-	fmt.Println("something started...")
+	done := make(chan bool)
+
+	go w.Start(done)
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		log.Print("Caught SIGINT.... passing end")
+		done <- true
+
+		select {
+		case <-done:
+			os.Exit(0)
+		}
+	}()
+
+	log.Println("Starting server....")
 
 	service.InitAndStart(cfg)
 }

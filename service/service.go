@@ -9,6 +9,7 @@ import (
 	"github.com/go-ozzo/ozzo-routing/access"
 	"github.com/go-ozzo/ozzo-routing/content"
 	"github.com/limianwang/yo/config"
+	"github.com/limianwang/yo/worker"
 )
 
 // InitAndStart initializes and starts the server
@@ -27,13 +28,18 @@ func startServer(conf *config.Config) {
 		access.Logger(log.Printf),
 	)
 
+	router.Get("/", func(c *routing.Context) error {
+		return c.Write("Root page")
+	})
+
 	api := router.Group("/api")
 	api.Use(
 		content.TypeNegotiator(content.JSON),
 	)
-	api.Get("/validate", func(c *routing.Context) error {
+	api.Get("/token", func(c *routing.Context) error {
 		return c.Write(map[string]string{
 			"status": "ok",
+			"token":  worker.GetToken(),
 		})
 	})
 
