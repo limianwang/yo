@@ -54,5 +54,5 @@ func main() {
 
 	log.Println("Starting server....")
 
-	service.InitAndStart(cfg)
+	service.InitAndStart(cfg, w)
 }

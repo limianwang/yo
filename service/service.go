@@ -9,19 +9,22 @@ import (
 	"github.com/go-ozzo/ozzo-routing/access"
 	"github.com/go-ozzo/ozzo-routing/content"
 	"github.com/limianwang/yo/config"
-	"github.com/limianwang/yo/worker"
 )
 
+type Tokener interface {
+	GetToken() (string, error)
+}
+
 // InitAndStart initializes and starts the server
-func InitAndStart(conf *config.Config) {
+func InitAndStart(conf *config.Config, w Tokener) {
 	fmt.Println("starting...")
 
 	// a := accessor.NewAccessWorker(conf.Accessor.AppID, conf.Accessor.Secret, conf.Accessor.Frequency)
 
-	startServer(conf)
+	startServer(conf, w)
 }
 
-func startServer(conf *config.Config) {
+func startServer(conf *config.Config, w Tokener) {
 	router := routing.New()
 
 	router.Use(
@@ -37,9 +40,17 @@ func startServer(conf *config.Config) {
 		content.TypeNegotiator(content.JSON),
 	)
 	api.Get("/token", func(c *routing.Context) error {
+		token, err := w.GetToken()
+
+		if err != nil {
+			return c.Write(map[string]string{
+				"status": "not_ok",
+			})
+		}
+
 		return c.Write(map[string]string{
 			"status": "ok",
-			"token":  worker.GetToken(),
+			"token":  token,
 		})
 	})
 
